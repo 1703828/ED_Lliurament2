@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""
+VideoPlayer.py : ** REQUIRED ** El vostre codi de la classe VideoPlayer.
+"""
+import cfg
 import os
 import time
 import vlc
@@ -11,37 +16,43 @@ class VideoPlayer:
     nomès actua
     """
 
-    __slots__ = ('__video_data', )
+    __slots__ = ['__video_data']
 
     def __init__(self, video_data: VideoData):
         """
-        Inicializa el reproductor de video con los datos de VideoData
-        :param video_data: instancia de la clase VideoData
+        Inicializa el VideoPlayer con una instancia de VideoData.
         """
         self.__video_data = video_data
 
+
+
     def play_video(self, uuid: str, mode: int):
         """
-        Reproduce el video según el modo especificado:
-            mode : 0 - Imprime los metadatos y reproduce el video
-            mode : 1 - Reproduce el video (sin imprimir metadatos)
-            mode : 2 - Reproduce solo el video
-        :param uuid: identificador único del video
-        :param mode: modo de reproducción
+        Reproduce un vídeo dado un UUID y un modo.
+        
+        Parameters:
+        - uuid (str): Identificador único del vídeo a reproducir.
+        - mode (int): El modo en que se debe reproducir el vídeo (por ejemplo, 1 para normal, 2 para repetición, etc.)
         """
-        file_path = self.__get_file_path(uuid)
-        if not file_path:
-            print(f"No se encontró el archivo para el UUID: {uuid}")
+        filename = self.__video_data.get_filename(uuid)
+        file_path = self.__video_data.get_path(uuid)
+        
+        if not os.path.exists(file_path):
+            print(f"Error: El archivo {filename} no se encuentra en la ruta {file_path}.")
             return
+        
+        media = vlc.Media(file_path)
+        self.__player.set_media(media)
+        
+        if mode == 2:  # Supongamos que 'mode 2' es para repetición
+            self.__player.set_playback_mode(vlc.MediaPlayer().loop)
+        
+        print(f"Reproduciendo: {filename} en modo {mode}")
+        self.__player.play()
 
-        # Imprimir metadatos si el modo lo requiere
-        if mode == 0 or mode == 1:
-            self.__print_video(uuid)
-
-        # Reproducir el video si el modo lo requiere
-        if mode == 1 or mode == 2:
-            self.__play_file(file_path)
-
+        while self.__player.is_playing():
+            time.sleep(1)
+            
     def __get_file_path(self, uuid: str):
         """
         Obtiene la ruta del archivo para un UUID
@@ -72,7 +83,8 @@ class VideoPlayer:
         print(f"Duración: {self.__video_data.get_duration(uuid)} segundos")
 
     @staticmethod
-    def __play_file(file: str):
+# Cambio de __play_file() a play_file()
+    def play_file(self, file: str):
         """
         Reproduce un archivo MP4.
         :param file: ruta del archivo a reproducir
@@ -80,10 +92,10 @@ class VideoPlayer:
         if not os.path.exists(file):
             print(f"Error: El archivo {file} no existe.")
             return
-
+    
         player = vlc.MediaPlayer(file)
         player.play()
-
+    
         # Espera hasta que el video termine de reproducirse
         tag = TinyTag.get(file)
         duration = int(tag.duration) if tag.duration else 0
@@ -100,3 +112,15 @@ class VideoPlayer:
 
         for uuid in self.__video_data:
             self.play_video(uuid, 1)  # Reproducir cada video con opción de mostrar metadatos
+    
+    def __str__(self):
+        """ Representació en cadena de Videoplayer. """
+        return f"VideoID managing {len(self)} UUIDs"
+    def __len__(self):
+        """ Retorna el nombre d'UUIDs registrats. """
+        return len(self)
+    def __repr__(self):
+        """
+        Devuelve una representación en cadena de VideoPlayer con el número de videos gestionados.
+        """
+        return f"VideoPlayer managing {len(self.__video_data)} videos"
