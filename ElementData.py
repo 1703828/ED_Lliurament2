@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+ElementData.py : ** REQUIRED ** El vostre codi de la classe PlayList.
+"""
+import cfg
+import os
+
 class ElementData:
     __slots__ = ("_title", "_artist", "_album", "_composer", "_genre", "_date", "_comment", "_duration", "_filename")
 
@@ -50,6 +57,7 @@ class ElementData:
         return self._filename
 
     # Make the class hashable and comparable
+      # Make the class hashable and comparable
     def __hash__(self):
         return hash(self._filename)
 
@@ -66,4 +74,15 @@ class ElementData:
                 f"composer={self._composer}, genre={self._genre}, date={self._date}, "
                 f"comment={self._comment}, duration={self._duration}, filename={self._filename})")
 
+    def __str__(self):
+        """ Representació en cadena de ElementData. """
+        return f"ElementData(title={self._title}, artist={self._artist}, filename={self._filename})"
 
+    def __len__(self):
+        """ Retorna un valor fijo, ya que ElementData no tiene una longitud específica. """
+        return 1
+        
+    def __lt__(self, other):
+        if not isinstance(other, ElementData):
+            return False
+        return self._title < other._title
