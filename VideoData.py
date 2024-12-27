@@ -221,33 +221,32 @@ class VideoData:
         return f"VideoID managing {len(self)} UUIDs"
     
     # Función que procesa la lista de reproducción y añade las aristas
-def read_playlist(self, obj_playlist: 'PlayList'):
-    """
-    Añade las aristas al grafo basándose en los vídeos consecutivos en una Playlist.
-    Cada arista representa la relación de 'reproducción consecutiva' entre dos vídeos.
-    El peso de la arista se incrementa si la secuencia se repite.
-    """
-    # Obtén la lista de vídeos de la PlayList
-    videos = list(obj_playlist)
-    
-    if len(videos) < 2:
-        print("ERROR: La playlist debe tener al menos dos vídeos.")
-        return
-    
-    # Recorremos los vídeos consecutivos
-    for i in range(len(videos) - 1):
-        uuid1 = videos[i]
-        uuid2 = videos[i + 1]
+    def read_playlist(self, obj_playlist: 'PlayList'):
+        """
+        Añade las aristas al grafo basándose en los vídeos consecutivos en una Playlist.
+        Cada arista representa la relación de 'reproducción consecutiva' entre dos vídeos.
+        El peso de la arista se incrementa si la secuencia se repite.
+        """
+        # Obtén la lista de vídeos de la PlayList
+        videos = list(obj_playlist)
         
-        if not self.existeix_uuid(uuid1) or not self.existeix_uuid(uuid2):  # Asegurarse de que ambos vídeos existan
-            print(f"ERROR: Uno o ambos vídeos no existen en el grafo: {uuid1}, {uuid2}")
-            continue
-
-        # Si la arista ya existe, incrementamos su peso
-        if self.__graph.existeix_arestes(uuid1, uuid2):
-            weight = self.__graph.get_weight(uuid1, uuid2) + 1
-            self.__graph.update_edge_weight(uuid1, uuid2, weight)
-        else:
-            # Si la arista no existe, la añadimos con peso 1
-            self.__graph.insert_edge(uuid1, uuid2, 1)
-
+        if len(videos) < 2:
+            print("ERROR: La playlist debe tener al menos dos vídeos.")
+            return
+        
+        # Recorremos los vídeos consecutivos
+        for i in range(len(videos) - 1):
+            uuid1 = videos[i]
+            uuid2 = videos[i + 1]
+            
+            if not self.existeix_uuid(uuid1) or not self.existeix_uuid(uuid2):  # Asegurarse de que ambos vídeos existan
+                print(f"ERROR: Uno o ambos vídeos no existen en el grafo: {uuid1}, {uuid2}")
+                continue
+    
+            # Si la arista ya existe, incrementamos su peso
+            if self.__graph.existeix_arestes(uuid1, uuid2):
+                weight = self.__graph.get_weight(uuid1, uuid2) + 1
+                self.__graph.update_edge_weight(uuid1, uuid2, weight)
+            else:
+                # Si la arista no existe, la añadimos con peso 1
+                self.__graph.insert_edge(uuid1, uuid2, 1)
