@@ -14,15 +14,14 @@ class VideoData:
         self.__metadata = {}
 
     def get_video_rank(self, uuid: str) -> int:
-        """ Calcula el ranking de un vídeo sumando los pesos de las aristas que entran y salen. """
-        if not self.existeix_uuid(uuid):  # Verifica que el uuid esté presente
+        if not self.existeix_uuid(uuid):
             return 0
-    
-        rank_out = sum(self.__graph.get_edges_out(uuid).values())  # Suma de los pesos de las aristas salientes
-        rank_in = sum(self.__graph.get_edges_in(uuid).values())    # Suma de los pesos de las aristas entrantes
-    
+        rank_out = sum(self.__graph.get_edges_out(uuid).values() or [0])
+        rank_in = sum(self.__graph.get_edges_in(uuid).values() or [0])
         return rank_out + rank_in
+
     
+
     def get_next_videos(self, uuid: str):
         """Iterador de vídeos directamente conectados como sucesores del nodo dado."""
         if not self.existeix_uuid(uuid):  # Verifica que el uuid exista
@@ -63,14 +62,13 @@ class VideoData:
         return filename in files
 
     def add_video(self, uuid, filename):
-        """Añade un video si no existe ya el archivo."""
         if not self.existeix_file(filename):
-            if uuid and filename:  # Ambos valores no deben estar vacíos.
+            if uuid and filename:
                 root = cfg.get_root()
                 path = os.path.realpath(os.path.join(root, filename))
-                metadata = ElementData(filename=filename)
-                self.__graph.insert_vertex(uuid, metadata)  # Añadimos el vídeo al grafo
-                self.__metadata[uuid] = [filename, path]  # Guarda la metadata adicional
+                self.__metadata[uuid] = [filename, path, -1, "None", "None", "None", "None", "None", "None", "None"]
+                self.__graph.insert_vertex(uuid, ElementData(filename=filename))
+
 
     def remove_video(self, uuid):
         """Elimina un video de la metadata usando su UUID."""
@@ -79,48 +77,35 @@ class VideoData:
             del self.__metadata[uuid]
 
     def load_metadata(self, uuid):
-        """Carga los metadatos desde un archivo MP4."""
+        """Carga los metadatos desde un archivo MP4 y los guarda en la metadata del video."""
         if uuid in self.__metadata:
             path = self.__metadata[uuid][1]
             metadata = tinytag.TinyTag.get(path)
+            
             if metadata is None:
                 print("ERROR: Archivo MP4 erróneo!")
                 sys.exit(1)
-
+    
             try:
                 duration = int(numpy.ceil(metadata.duration))
             except AttributeError:
                 duration = -1
-            self.__metadata[uuid].append(duration)
-
-            for attr, key in [
-                ("title", "None"),
-                ("album", "None"),
-                ("artist", "None"),
-                ("composer", "None"),
-                ("genre", "None"),
-                ("year", "None"),
-                ("comment", "None"),
+            self.__metadata[uuid][2] = duration  
+    
+            for attr, key, index in [
+                ("title", "None", 3),
+                ("album", "None", 4),
+                ("artist", "None", 5),
+                ("composer", "None", 6),
+                ("genre", "None", 7),
+                ("year", "None", 8),
+                ("comment", "None", 9),
             ]:
                 try:
                     value = getattr(metadata, attr, key)
                 except AttributeError:
                     value = key
-                self.__metadata[uuid].append(value)
-
-            # Actualizamos la metadata en el grafo
-            metadata_element = ElementData(
-                title=self.__metadata[uuid][3],
-                artist=self.__metadata[uuid][5],
-                album=self.__metadata[uuid][4],
-                composer=self.__metadata[uuid][6],
-                genre=self.__metadata[uuid][7],
-                date=self.__metadata[uuid][8],
-                comment=self.__metadata[uuid][9],
-                duration=self.__metadata[uuid][2],
-                filename=self.__metadata[uuid][0]
-            )
-            self.__graph.get(uuid)._value = metadata_element  # Actualiza la instancia de ElementData
+                self.__metadata[uuid][index] = value  
 
     def __len__(self):
         return len(self.__metadata)
@@ -135,16 +120,13 @@ class VideoData:
             m = len(self.__metadata[uuid])
             return m > 2
 
-    def __get_filename(self, uuid: str) -> str:
-        """
-        Devuelve el nombre de archivo asociado a un UUID si existe.
-        """
-        if self.existeix_meta(uuid):
-            return self.__metadata[uuid][0]
-        raise KeyError(f"No metadata found for UUID: {uuid}")
+    def get_filename(self,uuid):
+        if uuid in self._graf:
+            return self._graf.get(uuid).filename
         
-    def get_filename(self, uuid: str) -> str:
-        return self.__get_filename(uuid)
+
+
+
         
     def get_path(self, uuid):
         """Devuelve la ruta del archivo asociada a un UUID."""
@@ -156,10 +138,9 @@ class VideoData:
         if self.existeix_meta(uuid):
             return self.__metadata[uuid][2]
 
-    def get_title(self, uuid):
-        """Devuelve el título del video asociado a un UUID."""
+    def get_title(self,uuid):
         if self.existeix_meta(uuid):
-            return str(self.__metadata[uuid][3])
+            return str(self._metadata[uuid][3])
 
     def get_album(self, uuid):
         """Devuelve el álbum del video asociado a un UUID."""
@@ -219,34 +200,14 @@ class VideoData:
     def __str__(self):
         """ Representación en cadena de VideoData. """
         return f"VideoID managing {len(self)} UUIDs"
-    
-    # Función que procesa la lista de reproducción y añade las aristas
+        
+        # Función que procesa la lista de reproducción y añade las aristas
     def read_playlist(self, obj_playlist: 'PlayList'):
-        """
-        Añade las aristas al grafo basándose en los vídeos consecutivos en una Playlist.
-        Cada arista representa la relación de 'reproducción consecutiva' entre dos vídeos.
-        El peso de la arista se incrementa si la secuencia se repite.
-        """
-        # Obtén la lista de vídeos de la PlayList
-        videos = list(obj_playlist)
-        
-        if len(videos) < 2:
-            print("ERROR: La playlist debe tener al menos dos vídeos.")
-            return
-        
-        # Recorremos los vídeos consecutivos
+        videos = [uuid for uuid in obj_playlist if self.existeix_uuid(uuid)]
         for i in range(len(videos) - 1):
-            uuid1 = videos[i]
-            uuid2 = videos[i + 1]
-            
-            if not self.existeix_uuid(uuid1) or not self.existeix_uuid(uuid2):  # Asegurarse de que ambos vídeos existan
-                print(f"ERROR: Uno o ambos vídeos no existen en el grafo: {uuid1}, {uuid2}")
-                continue
-    
-            # Si la arista ya existe, incrementamos su peso
+            uuid1, uuid2 = videos[i], videos[i + 1]
             if self.__graph.existeix_arestes(uuid1, uuid2):
                 weight = self.__graph.get_weight(uuid1, uuid2) + 1
                 self.__graph.update_edge_weight(uuid1, uuid2, weight)
             else:
-                # Si la arista no existe, la añadimos con peso 1
                 self.__graph.insert_edge(uuid1, uuid2, 1)
