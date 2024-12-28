@@ -9,6 +9,8 @@ class ElementData:
     __slots__ = ("_title", "_artist", "_album", "_composer", "_genre", "_date", "_comment", "_duration", "_filename")
 
     def __init__(self, title="", artist="", album="", composer="", genre="", date="", comment="", duration=0, filename=""):
+        if not filename:  # Si el filename está vacío o es None
+            raise ValueError("El 'filename' es obligatorio y no puede estar vacío.")
         self._title = title
         self._artist = artist
         self._album = album
@@ -19,7 +21,7 @@ class ElementData:
         self._duration = duration
         self._filename = filename
 
-    # Properties for all attributes
+    # Propiedades (sin setters, solo getters)
     @property
     def title(self):
         return self._title
@@ -56,8 +58,6 @@ class ElementData:
     def filename(self):
         return self._filename
 
-    # Make the class hashable and comparable
-      # Make the class hashable and comparable
     def __hash__(self):
         return hash(self._filename)
 
@@ -75,11 +75,9 @@ class ElementData:
                 f"comment={self._comment}, duration={self._duration}, filename={self._filename})")
 
     def __str__(self):
-        """ Representació en cadena de ElementData. """
         return f"ElementData(title={self._title}, artist={self._artist}, filename={self._filename})"
 
     def __len__(self):
-        """ Retorna un valor fijo, ya que ElementData no tiene una longitud específica. """
         return 1
         
     def __lt__(self, other):
