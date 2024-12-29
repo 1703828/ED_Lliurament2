@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 # PlayList.py : ** REQUIRED ** El vostre codi de la classe PlayList.
 
-import cfg # Necessari per a la pràctica !!
- # Mireu el contingut de l'arxiu
+import cfg 
 import os.path
 import sys
-import numpy # installed in anaconda by default
+import numpy 
 import uuid
-import vlc # $ pip install python-vlc
+import vlc
 import time 
 import os
 
@@ -15,27 +14,29 @@ class PlayList:
    
     __slots__=['__videoid','__videoplayer','__playlist']
 
-    def __init__(self, video_id, video_player):
+    def __init__(self, video_id=None, video_player=None):
+        if video_id is None or video_player is None:
+            raise NotImplementedError("No se puede instanciar PlayList sin video_id y video_player.")
+        
         self.__videoid = video_id
         self.__videoplayer = video_player
         self.__playlist = []
-    
 
     def load_file(self, file: str):
         self.__playlist = []
         if not file.endswith(".m3u"):
             return
-                
+                    
         with open(file, "r", errors='ignore') as fitxer:
             for linia in fitxer:
                 linia = linia.strip()
                 if linia and not linia.startswith("#") and linia.endswith(".mp4"):
                     uuid = self.__videoid.get_uuid(linia)
-                    if uuid:
+                    if uuid and uuid not in self.__playlist:
                         self.__playlist.append(uuid)
-       
+        
         return self.__playlist
-           
+
     def play(self, mode=int):
         if self.__playlist:
             for uuid in self.__playlist:
