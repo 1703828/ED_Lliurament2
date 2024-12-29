@@ -2,12 +2,12 @@
 """
 VideoFiles.py : ** REQUIRED ** El vostre codi de la classe VideoFiles.
 """
-import cfg  # Necessari per a la pràctica !!
+import cfg  
 import os.path
 import sys
-import numpy  # installed in anaconda by default
+import numpy  
 import uuid
-import vlc  # $ pip install python-vlc
+import vlc  
 import time
 import sys
 import os
@@ -23,7 +23,7 @@ class VideoFiles():
     def reload_fs(self, root):
         afegits = []
         self.__files_added = []
-        self.__files_removed = []  # Cambiado _files_removed a __files_removed
+        self.__files_removed = []  
         for root_dir, dirs, files in os.walk(root):
             for filename in files:
                 if filename.lower().endswith(tuple(['.mp4'])):
