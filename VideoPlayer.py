@@ -14,11 +14,11 @@ class VideoPlayer:
 
     __slots__ = ['__video_data']
 
-    def __init__(self, video_data: VideoData):
-        if not isinstance(video_data, VideoData):
-            raise TypeError("Se requiere una instancia de VideoData.")
+    def __init__(self, video_data=None):
+        # Verificar si el argumento es válido y lanzar NotImplementedError si no lo es
+        if video_data is None or not isinstance(video_data, VideoData):
+            raise NotImplementedError("Se requiere una instancia válida de VideoData para instanciar VideoPlayer.")
         self.__video_data = video_data
-
     def play_video(self, uuid: str, mode: int):
         """
         Reproduce un video en base al modo especificado:
@@ -31,10 +31,10 @@ class VideoPlayer:
             print(f"Archivo no encontrado para UUID: {uuid}")
             return
 
-        if mode == 0 or mode == 1:
+        if mode < 2:
             self.print_video(uuid)
 
-        if mode == 0 or mode == 2:
+        if mode > 0:
             self.play_file(file_path)
 
     def get_file_path(self, uuid: str):
