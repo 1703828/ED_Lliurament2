@@ -13,9 +13,9 @@ from VideoData import VideoData
 class SearchMetadata:
     __slots__ = ['__video_data']
 
-    def __init__(self, obj_video_data):
-        if not isinstance(obj_video_data, VideoData):
-            raise TypeError("Expected a VideoData instance")
+    def __init__(self, obj_video_data=None):
+        if obj_video_data is None or not isinstance(obj_video_data, VideoData):
+            raise NotImplementedError("Se requiere una instancia válida de VideoData para instanciar SearchMetadata.")
         self.__video_data = obj_video_data
 
     @property
