@@ -6,81 +6,89 @@ import cfg
 import os
 
 class ElementData:
-    __slots__ = ("_title", "_artist", "_album", "_composer", "_genre", "_date", "_comment", "_duration", "_filename")
-
+    __slots__ = ['__title', '__artist', '__album', '__composer', '__genre', '__date', '__comment', '__duration', '__filename']
+    
     def __init__(self, title="", artist="", album="", composer="", genre="", date="", comment="", duration=0, filename=""):
-        if not filename:  # Si el filename está vacío o es None
-            raise ValueError("El 'filename' es obligatorio y no puede estar vacío.")
-        self._title = title
-        self._artist = artist
-        self._album = album
-        self._composer = composer
-        self._genre = genre
-        self._date = date
-        self._comment = comment
-        self._duration = duration
-        self._filename = filename
+        self.__title = title
+        self.__artist = artist
+        self.__album = album
+        self.__composer = composer
+        self.__genre = genre
+        self.__date = date
+        self.__comment = comment
+        self.__duration = duration
+        self.__filename = filename
+    
+    def __repr__(self):
+        return f"ElementData(title={self.__title}, artist={self.__artist}, album={self.__album}, filename={self.__filename})"
+    
+    def __eq__(self, other):
+        # Comparar solo si 'other' es una instancia de ElementData y basarse en 'filename'
+        if not isinstance(other, ElementData):
+            return False
+        return self.__filename == other.__filename
+
+    def __ne__(self, other):
+        # La desigualdad se invierte a partir de la comparación de igualdad
+        return not self.__eq__(other)
+    
+    def __lt__(self, other):
+        # Comparación lexicográfica de 'filename'
+        if not isinstance(other, ElementData):
+            return NotImplemented
+        return self.__filename < other.__filename
+    
+    def __hash__(self):
+        # Asegurarse de que el hash se basa en 'filename'
+        return hash(self.__filename)
 
     # Propiedades (sin setters, solo getters)
     @property
     def title(self):
-        return self._title
+        return self.__title
 
     @property
     def artist(self):
-        return self._artist
+        return self.__artist
 
     @property
     def album(self):
-        return self._album
+        return self.__album
 
     @property
     def composer(self):
-        return self._composer
+        return self.__composer
 
     @property
     def genre(self):
-        return self._genre
+        return self.__genre
 
     @property
     def date(self):
-        return self._date
+        return self.__date
 
     @property
     def comment(self):
-        return self._comment
+        return self.__comment
 
     @property
     def duration(self):
-        return self._duration
+        return self.__duration
 
     @property
     def filename(self):
-        return self._filename
-
-    def __hash__(self):
-        return hash(self._filename)
-
-    def __eq__(self, other):
-        if not isinstance(other, ElementData):
-            return False
-        return self._filename == other._filename
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-    def __repr__(self):
-        return (f"ElementData(title={self._title}, artist={self._artist}, album={self._album}, "
-                f"composer={self._composer}, genre={self._genre}, date={self._date}, "
-                f"comment={self._comment}, duration={self._duration}, filename={self._filename})")
+        return self.__filename
 
     def __str__(self):
-        return f"ElementData(title={self._title}, artist={self._artist}, filename={self._filename})"
+        return f"ElementData(title={self.__title}, artist={self.__artist}, filename={self.__filename})"
 
-    def __len__(self):
-        return 1
-        
-    def __lt__(self, other):
-        if not isinstance(other, ElementData):
-            return False
-        return self._title < other._title
+    # Métodos de iteración y longitud eliminados, ya que no parece que la clase se deba usar de esta manera.
+    
+    @staticmethod
+    def get_metadata(uuid: str, attribute: str):
+        try:
+            video = self.__graph.get(uuid)  # Obtener el nodo del grafo
+            if video:
+                return getattr(video, attribute, None)
+        except AttributeError:
+            return None
