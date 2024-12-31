@@ -46,38 +46,83 @@ class ElementData:
     @property
     def title(self):
         return self.__title
+    
+    @title.setter
+    def title(self, title):
+        self.__title = title
+
 
     @property
     def artist(self):
         return self.__artist
+    
+    @artist.setter
+    def artist(self, artist):
+        self.__artist = artist
+
 
     @property
     def album(self):
         return self.__album
-
+    
+    @album.setter
+    def album(self, album):
+        self.__album = album
+    
+    
     @property
     def composer(self):
         return self.__composer
+    
+    @composer.setter
+    def composer(self, composer):
+        self.__composer = composer
+    
 
     @property
     def genre(self):
         return self.__genre
+    
+    @genre.setter
+    def genre(self, genre):
+        self.__genre = genre
+        
 
     @property
     def date(self):
         return self.__date
+        
+    @date.setter
+    def date(self, date):
+        self.__date = date
 
+    
     @property
     def comment(self):
         return self.__comment
+    
+    @comment.setter
+    def comment(self, comment):
+        self.__comment = comment
+    
 
     @property
     def duration(self):
         return self.__duration
+    
+    @duration.setter
+    def duration(self, duration):
+        self.__duration = duration
+    
 
     @property
     def filename(self):
         return self.__filename
+    
+    @filename.setter
+    def filename(self, value):
+        raise ValueError("ERROR: No modificable")
+    
 
     def __str__(self):
         return f"ElementData(title={self.__title}, artist={self.__artist}, filename={self.__filename})"
