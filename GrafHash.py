@@ -25,8 +25,9 @@ class GrafHash:
         def __repr__(self):
             return f"Vertex({repr(self.__value)})"
         
-        def _str_(self):
+        def __str__(self):
             return str(self.__value)
+
 
         def get_element_data(self):
             return self.__value
@@ -55,7 +56,7 @@ class GrafHash:
     def insert_vertex(self, key, e: ElementData):
         """ Insert a vertex into the graph with a given key and an ElementData instance. """
         if not isinstance(e, ElementData):
-            raise TypeError(f"Expected e to be of type ElementData, but got {type(e)}")
+            raise TypeError(f"Expected e to be of type ElementData, but got {type(e)}. Key: {key}")
         if key in self.__nodes:  
             return self.__nodes[key]
         vertex = self.Vertex(e)  
@@ -64,6 +65,7 @@ class GrafHash:
         if self.es_digraf():  
             self.__in[key] = {}
         return vertex
+
 
     def insert_edge(self, key1, key2, weight=1):
         """ Insert an edge between two vertices with an optional weight. """
@@ -100,6 +102,7 @@ class GrafHash:
                     if key in arestes_in:
                         del arestes_in[key]
 
+
     def __existeix_edge(self,n1,n2):
         if n2 in self.__out[n1]:
             return True
@@ -123,11 +126,12 @@ class GrafHash:
         return sum(self.__out[x].values())
 
     def itera(self):
-        return self.__nodes.keys().iter_( )
-
-    def __iter__(self):
-        return self.__nodes.iter_( )
+        return self.__nodes.keys().__iter__()
     
+    def __iter__(self):
+        return iter(self.__nodes)
+    
+        
     def edges(self,key):
         if key not in self.__nodes:
             raise KeyError(f"El node amb clau {key} no existeix.")
@@ -160,6 +164,8 @@ class GrafHash:
     def get_weight(self, key1, key2):
         """ Devuelve el peso de la arista entre dos vértices. """
         return self.__out.get(key1, {}).get(key2, None)
+    
+    
 
     def update_edge_weight(self, key1, key2, weight):
         """ Actualiza el peso de la arista entre dos vértices. """
@@ -219,19 +225,12 @@ class GrafHash:
         return dist, predecessors
 
     def camiMesCurt(self, n1, n2):
-        llista_nodes = []
-
-        if n1 in self._nodes and n2 in self._nodes:
-            dist, predecessors = self.dijkstraModif(n1, n2)
-
-            if n2 in predecessors or n1 == n2:
-                llista_nodes.append(n2)
-                nodeAct = n2
-                while nodeAct != n1:
-                    predecessor = predecessors[nodeAct]
-                    llista_nodes.append(predecessor)
-                    nodeAct = predecessor
-
-            llista_nodes.reverse()
-
-        return llista_nodes   
+        path = []
+        if n1 in self.__nodes and n2 in self.__nodes:
+            dist, pred = self.dijkstraModif(n1, n2)
+            if n2 in pred:
+                node = n2
+                while node is not None:
+                    path.insert(0, node)
+                    node = pred.get(node)
+        return path or None
