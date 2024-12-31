@@ -37,6 +37,11 @@ class PlayList:
         
         return self.__playlist
 
+    def read_list(self, p_llista: list):
+        """Cargar vídeos desde una lista de UUIDs únicos."""
+        self.__playlist = [uuid for uuid in p_llista if uuid not in self.__playlist]
+
+    
     def play(self, mode=int):
         if self.__playlist:
             for uuid in self.__playlist:
