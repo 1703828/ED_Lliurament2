@@ -42,11 +42,16 @@ class PlayList:
         self.__playlist = [uuid for uuid in p_llista if uuid not in self.__playlist]
 
     
-    def play(self, mode=int):
+    def play(self, mode=0):
+        if not isinstance(mode, int):
+            raise TypeError(f"El modo debe ser un entero, recibido: {type(mode)}")
         if self.__playlist:
             for uuid in self.__playlist:
-                self.__videoplayer.play_video(uuid, mode)
-   
+                try:
+                    self.__videoplayer.play_video(uuid, mode)
+                except Exception as e:
+                    print(f"Error al reproducir video {uuid}: {e}")
+
     def add_video_at_end(self, uuid: str):
         self.__playlist.append(uuid)
    
