@@ -9,18 +9,25 @@ import uuid
 import vlc
 import time 
 import os
+from VideoID import VideoID  # Asegúrate de que la ruta sea correcta
+from VideoPlayer import VideoPlayer  # Asegúrate de que la ruta sea correcta
+
 
 class PlayList:
-   
-    __slots__=['__videoid','__videoplayer','__playlist']
+    __slots__ = ['__videoid', '__videoplayer', '__playlist']
 
     def __init__(self, video_id=None, video_player=None):
-        if video_id is None or video_player is None:
-            raise NotImplementedError("No se puede instanciar PlayList sin video_id y video_player.")
+        # Verificar si los argumentos son válidos
+        if video_id is None or not isinstance(video_id, VideoID):
+            raise NotImplementedError("Se requiere una instancia válida de VideoData para video_id.")
+        if video_player is None or not isinstance(video_player, VideoPlayer):
+            raise NotImplementedError("Se requiere una instancia válida de VideoPlayer para video_player.")
         
+        # Inicializar los atributos
         self.__videoid = video_id
         self.__videoplayer = video_player
         self.__playlist = []
+
 
     def load_file(self, file: str):
         self.__playlist = []
